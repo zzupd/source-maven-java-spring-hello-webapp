@@ -34,23 +34,23 @@ pipeline {
     stage('Tag Container Image') {
       agent { label 'controller' }
       steps {
-        sh 'docker image tag myhello:v1 kjj/myhello:v$BUILD_NUMBER'
-        sh 'docker image tag myhello:v1 kjj/myhello:latest'
+        sh 'docker image tag myhello:v1 zzupd/myhello:v$BUILD_NUMBER'
+        sh 'docker image tag myhello:v1 zzupd/myhello:latest'
       }
     }
     stage('Push Container Image') {
       agent { label 'controller' }
       steps {
         withDockerRegistry(credentialsId: 'docker-registry-credential', url: 'https://index.docker.io/v1/') {
-          sh 'docker image push kjj/myhello:v$BUILD_NUMBER'
-          sh 'docker image push kjj/myhello:latest'
+          sh 'docker image push zzupd/myhello:v$BUILD_NUMBER'
+          sh 'docker image push zzupd/myhello:latest'
         }
       }
     }
     stage('Run Container') {
       agent { label 'controller' }
       steps {
-        sh 'docker container run --detach --name myhello -p 80:8080 kjj/myhello:latest'
+        sh 'docker container run --detach --name myhello -p 80:8080 zzupd/myhello:latest'
       }
     }
   }
