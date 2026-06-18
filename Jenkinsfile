@@ -3,16 +3,15 @@ pipeline {
   stages {
     stage('Checkout') {
       agent {
-        docker { image 'maven:3-eclipse-temurin-12' }
+        docker { image 'maven:3-eclipse-temurin-21' }
       }
       steps {
-        git branch: 'main', 
-        url: 'https://github.com/zzupd/source-maven-java-spring-hello-webapp.git'
+        git branch: 'main', url: 'https://github.com/zzupd/source-maven-java-spring-hello-webapp.git'
       }
     }
     stage('Test Application') {
       agent {
-        docker { image 'maven:3-eclilpse-temurin-21' }
+        docker { image 'maven:3-eclipse-temurin-21' }
       }
       steps {
         sh 'mvn test'
