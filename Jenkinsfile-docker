@@ -12,8 +12,10 @@ Components: stable
 Architectures: $(dpkg --print-architecture)
 Signed-By: /etc/apt/keyrings/docker.asc
 EOF
+
 RUN apt update && apt install -y docker-ce-cli docker-buildx-plugin docker-compose-plugin && \
     rm -rf /var/lib/apt/lists/*
 USER jenkins
+
 RUN jenkins-plugin-cli --plugins "git pipeline-stage-view docker-plugin docker-workflow"
 
