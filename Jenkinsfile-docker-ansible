@@ -36,7 +36,6 @@ pipeline {
       steps {
         sh 'docker image tag myhello:v1 zzupd/myhello:v$BUILD_NUMBER'
         sh 'docker image tag myhello:v1 zzupd/myhello:latest'
-
       }
     }
     stage('Push Container Image') {
@@ -51,9 +50,8 @@ pipeline {
     stage('Run Container') {
       agent { label 'controller' }
       steps {
-        sh 'docker container run --detach --name myhello -p 80:8080 zzupd/myhello:latest'
+        ansiblePlaybook(playbook: 'playbook.yaml')
       }
     }
   }
 }
-
