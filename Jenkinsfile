@@ -1,59 +1,33 @@
 pipeline {
-  agent none
+  agent {
+    label "jenkins-node"
+  }
+
+  triggers {
+    pollSCM('* * * * *')
+  }
+
   stages {
     stage('Checkout') {
-      agent {
-        docker { image 'maven:3-eclipse-temurin-21' }
-      }
       steps {
-        git branch: 'main', url: 'https://github.com/zzupd/source-maven-java-spring-hello-webapp.git'
+        git branch: 'main', 
+        url: 'https://github.com/zzupd/source-maven-java-spring-hello-webapp.git'
       }
     }
     stage('Test Application') {
-      agent {
-        docker { image 'maven:3-eclipse-temurin-21' }
-      }
       steps {
         sh 'mvn test'
       }
     }
     stage('Build Application') {
-      agent {
-        docker { image 'maven:3-eclipse-temurin-21' }
-      }
       steps {
-        sh 'mvn clean package -DskipTests=true'
+        sh 'mvn package -DskipTests=true'
       }
     }
-    stage('Build Container Image') {
-      agent { label 'controller' }
+    stage('Application Deploy') {
       steps {
-        sh 'docker image build -t myhello:v1 .'
-      }
-    }
-    stage('Tag Container Image') {
-      agent { label 'controller' }
-      steps {
-        sh 'docker image tag myhello:v1 zzupd/myhello:v$BUILD_NUMBER'
-        sh 'docker image tag myhello:v1 zzupd/myhello:latest'
-
-      }
-    }
-    stage('Push Container Image') {
-      agent { label 'controller' }
-      steps {
-        withDockerRegistry(credentialsId: 'docker-registry-credential', url: 'https://index.docker.io/v1/') {
-          sh 'docker image push zzupd/myhello:v$BUILD_NUMBER'
-          sh 'docker image push zzupd/myhello:latest'
-        }
-      }
-    }
-    stage('Run Container') {
-      agent { label 'controller' }
-      steps {
-        sh 'docker container run --detach --name myhello -p 80:8080 zzupd/myhello:latest'
+        deploy adapters: [tomcat9(credentialsId: 'tomcat-user', url: 'http://192.168.56.102:8080')], contextPath: null, war: 'target/hello-world.war'
       }
     }
   }
 }
-
